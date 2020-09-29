@@ -2,6 +2,20 @@ export default function({ types: t }) {
     return {
         visitor: {
             MemberExpression(path) {
+                // translate bindAsEventListener() to bind()
+                if (path.node.property.name === "bindAsEventListener") {
+                    path.node.property.name = "bind";
+                }
+
+                // translate each() to forEach()
+                if (path.node.property.name === "each") {
+                    path.node.property.name = "forEach";
+                }
+
+                // if (path.node.property.name === "observe") {
+                //     path.node.property.name = "addEventListener";
+                // }
+
                 // translate addClassName(), removeClassName() and hasClassName() to classList methods
                 let classListMethod;
                 switch (path.node.property.name) {
@@ -27,7 +41,16 @@ export default function({ types: t }) {
                 // translate $() to document.getElementById()
                 if (t.isIdentifier(path.node.callee)) {
                     if (path.node.callee.name === "$super") {
-                        path.node.callee.name = "super";
+                        const funcNode = path.getFunctionParent().node;
+
+                        if (funcNode.type === "ClassMethod") {
+                            const methodName = funcNode.key.name;
+                            if (methodName === "constructor") {
+                                path.node.callee.name = "super";
+                            } else {
+                                path.node.callee = { type: "MemberExpression", object: { type: "Super" }, property: { type: "Identifier", name: methodName }, computed: false }
+                            }
+                        }
                     }
                     if (path.node.callee.name === "$") {
                         path.node.callee.name = "document.getElementById";
