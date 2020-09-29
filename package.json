@@ -1,0 +1,25 @@
+{
+  "name": "babel-plugin-prototypejs",
+  "version": "1.0.0",
+  "description": "Transcode PrototypeJS into ES6 classes, etc...",
+  "type": "module",
+  "main": "index.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx babel --plugins transform-es2015-modules-commonjs index.mjs > index.cjs"
+  },
+  "author": "Ben Ritz",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/generator": "^7.11.6",
+    "@babel/parser": "^7.11.5",
+    "@babel/template": "^7.10.4",
+    "@babel/traverse": "^7.11.5",
+    "@babel/types": "^7.11.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2"
+  }
+}
