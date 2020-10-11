@@ -36,22 +36,30 @@ export default function({ types: t }) {
                 }
             },
 
+            Identifier(path) {
+                if (path.node.name === "$super") {
+                    const funcNode = path.getFunctionParent().node;
+
+                    if (funcNode.type === "ClassMethod") {
+                        const methodName = funcNode.key.name;
+
+                        delete path.node.name;
+
+                        if (methodName === "constructor") {
+                            path.node.type = "Super";
+                        } else {
+                            path.node.type = "MemberExpression";
+                            path.node.object = { type: "Super" };
+                            path.node.property = { type: "Identifier", name: methodName };
+                        }
+                    }
+                }
+            },
+
             CallExpression(path) {
                 // translate $super() to super()
                 // translate $() to document.getElementById()
                 if (t.isIdentifier(path.node.callee)) {
-                    if (path.node.callee.name === "$super") {
-                        const funcNode = path.getFunctionParent().node;
-
-                        if (funcNode.type === "ClassMethod") {
-                            const methodName = funcNode.key.name;
-                            if (methodName === "constructor") {
-                                path.node.callee.name = "super";
-                            } else {
-                                path.node.callee = { type: "MemberExpression", object: { type: "Super" }, property: { type: "Identifier", name: methodName }, computed: false }
-                            }
-                        }
-                    }
                     if (path.node.callee.name === "$") {
                         path.node.callee.name = "document.getElementById";
                     }
