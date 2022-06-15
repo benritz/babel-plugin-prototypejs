@@ -114,7 +114,22 @@ exports.default = function ({
               const arg2 = args[1];
 
               if (arg1.type === "Identifier") {
-                derivedClass = arg1.name;
+                derivedClass = {
+                  type: "Identifier",
+                  name: arg1.name
+                };
+              } else if (arg1.type === "MemberExpression") {
+                derivedClass = {
+                  type: "MemberExpression",
+                  object: {
+                    type: "Identifier",
+                    name: arg1.object.name
+                  },
+                  property: {
+                    type: "Identifier",
+                    name: arg1.property.name
+                  }
+                };
               }
 
               if (arg2.type === "ObjectExpression") {
@@ -148,10 +163,7 @@ exports.default = function ({
             }));
             path.node.type = "ClassDeclaration";
             path.node.id = null;
-            path.node.superClass = derivedClass ? {
-              type: "Identifier",
-              name: derivedClass
-            } : null;
+            path.node.superClass = derivedClass;
             path.node.body = {
               type: "ClassBody",
               body: methods
